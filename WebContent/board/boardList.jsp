@@ -35,7 +35,7 @@
 </script>
 <body>
 	<%
-		String memberId = (String) session.getAttribute("memberId");
+	String memberId = (String) session.getAttribute("memberId");
 	if (memberId == null) { //세션이 null인 경우
 		out.print("<script>alert('로그인 하세요');location='../logon/memberLoginForm.jsp'</script>");
 	}
@@ -57,6 +57,7 @@
 	
 	//전체 글수
 	int cnt = boardDAO.getBoardCount();
+	
 	
 	// 게시판 전체 정보를 currentPage의  pageSize만큼 획득 
 	List<BoardDTO> boardList = boardDAO.getBoardList(startRow, pageSize);
@@ -96,19 +97,17 @@
 			} else {
 				for (BoardDTO board : boardList) {
 					int num = board.getNum();
-					int num2 = board.getRe_level();
+					int ref = board.getRef();
+					int num2 = boardDAO.getBoardReCount(ref);
+					String re_num;
+					if(num2 != 0){
+						re_num = "(" + num2 + ")";
+					}else re_num = "";
 			%>
 			<tr>
 				<td style="text-align: right; margin-right: 20px"><%=number--%>&ensp;&ensp;</td>
 				<td>
-					<%
-					int width = 0;
-					if (num2 > 0) {//댓글이라면
-						width = num2 * 10;
-						out.print("<img src='../images/level.png' width='" + width + "' heigth='16'>");
-						out.print("<img src='../images/re.png'>");
-					}
-					%> <a href="boardContent.jsp?num=<%=num%>&pageNum=<%=pageNum%>"> <%=board.getSubject()%></a>
+					<a href="boardContent.jsp?num=<%=num%>&pageNum=<%=pageNum%>"> <%=board.getSubject()%> <%=re_num%></a>
 					<%
 					if (board.getReadCount() > 20) {
 					out.print("<img src='../images/hot.png' width='16' heigth='16'>");

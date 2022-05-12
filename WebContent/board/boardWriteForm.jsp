@@ -30,21 +30,6 @@ String memberId = (String)session.getAttribute("memberId");
 if(memberId == null){
 	out.print("<script>location('../logon/memberLoginForm.jsp');</script>");
 }
-//댓글처리
-//원글일 경우
-
-	int num = 0, ref = 0, re_step=0, re_level = 0;
-	String title="";
-	String re = "";
-// 글번호가 없다면 원글, 글 번호가 있다면 댓글이다.
-// 글 번호(num)이 있다면 -> 댓글이라면 
-if(request.getParameter("num") != null){
-	num = Integer.parseInt(request.getParameter("num"));
-	ref = Integer.parseInt(request.getParameter("ref"));
-	re_step = Integer.parseInt(request.getParameter("re_step"));
-	re_level = Integer.parseInt(request.getParameter("re_level"));
-	title = "댓글 등록";
-}else title = "글 등록";
 %>
 document.addEventListener("DOMContentLoaded", function(){
 	let form = document.writeForm;
@@ -64,6 +49,8 @@ document.addEventListener("DOMContentLoaded", function(){
 		}
 		form.submit();	
 	});
+	
+	
 	let btn_boardList = document.getElementById("btn_boardList");
 	btn_boardList.addEventListener("click", function(){
 		location = "../board/boardList.jsp?pageNum=<%=pageNum%>";
@@ -72,26 +59,24 @@ document.addEventListener("DOMContentLoaded", function(){
 </script>
 </head>
 <body>
-<div class="m_title"><a href="#">coder</a></div>
-<div class="s_title"><%=title %></div>
-<div id="container"> 
-	<form action="boardWritePro.jsp" method="post" name="writeForm">
-		<input type="hidden" name="num" value="<%=num %>">
-		<input type="hidden" name="ref" value="<%=ref %>">
-		<input type="hidden" name="re_step" value="<%=re_step %>">
-		<input type="hidden" name="re_level" value="<%=re_level %>">
-		
-			<input type="text" name="subject" id="subject" value="<%=re %>" placeholder="제목을 입력해 주세요.">
+	<div class="m_title"><a href="#">coder</a></div>
+	<div class="s_title">글쓰기</div>
+	<div id="container"> 
+		<form action="boardWritePro.jsp" method="post" name="writeForm">
+			<input type="hidden" name="num" value="0">
+			<input type="hidden" name="ref" value="0">
+			<input type="hidden" name="re_step" value="0">
+			<input type="hidden" name="re_level" value="0">
+			<input type="text" name="subject" id="subject" value="" placeholder="제목을 입력해 주세요.">
 			<textarea rows="20" cols="60" name="content" id="content" placeholder="내용을 입력하세요." style="resize: none;"></textarea> <br>
 			<input type="text" name="writer" id="writer" readonly value="<%=memberId%>"> <br>
-			 
-			<br>
-		<div class="btns">
-			<input type="button" value="글등록" id="btn_write">&emsp;&emsp;
-			<input type="button" value="취소" id="btn_boardList">	
-		</div>
-	</form>
-</div>
-	
+				 
+				<br>
+			<div class="btns">
+				<input type="button" value="글등록" id="btn_write">&emsp;&emsp;
+				<input type="button" value="취소" id="btn_boardList">	
+			</div>
+		</form>
+	</div>
 </body>
 </html>

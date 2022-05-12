@@ -5,8 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
-
-import jdk.nashorn.internal.scripts.JD;
 import util.JDBCUtil;
 
 //DAO(Data Access Object) - DB의 연결, 해제, 질의를 담당 
@@ -81,6 +79,38 @@ public class BoardDAO {
 		}
 	}
 	
+	//대댓글 등록 메서드
+	public void insertReBoard(BoardDTO board) {
+		String sql1 = "update board set re_step = re_step+1 where ref=? and re_step>?";
+		String sql2 = "insert into board(writer, subject, content, ref, re_step, re_level) values(?, '[re]', ?, ?, ?, ?)";
+		
+		int num = board.getNum();
+		int ref = board.getRef();
+		int re_step = board.getRe_step();
+		int re_level = board.getRe_level();
+				
+		try {
+			conn = JDBCUtil.getConnection();
+			pstmt = conn.prepareStatement(sql1);
+			pstmt.setInt(1, ref);
+			pstmt.setInt(2, re_step);
+			pstmt.executeUpdate();
+			re_step = re_step + 1;
+			re_level = re_level + 1;
+
+			pstmt = conn.prepareStatement(sql2);
+			pstmt.setString(1, board.getWriter());
+			pstmt.setString(2, board.getContent());
+			pstmt.setInt(3, ref);
+			pstmt.setInt(4, re_step);
+			pstmt.setInt(5, re_level);
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			JDBCUtil.close(conn, pstmt, rs);
+		}
+	}
 	
 	
 	//게시판 글보기 (전체) 메서드
@@ -89,7 +119,7 @@ public class BoardDAO {
 		BoardDTO board= null;
 		
 		
-		String sql = "select * from board order by ref desc, re_step asc limit ?, ? ";
+		String sql = "select * from board where re_level = 0 order by ref desc limit ?, ? ";
 		
 		
 		try {
@@ -129,7 +159,7 @@ public class BoardDAO {
 		BoardDTO board= null;
 		
 		
-		String sql = "select * from board where ref = ? order by re_step";
+		String sql = "select * from board where ref = ? order by re_step ";
 		
 		
 		try {
@@ -200,6 +230,38 @@ public class BoardDAO {
 		return board;	
 	}
 	
+
+	//댓글 정보얻기 메서드
+	public BoardDTO getBoardDTO(int num) {
+		BoardDTO board = new BoardDTO();
+		String sql = "select * from board where num = ?";
+		
+		try {
+			
+			conn = JDBCUtil.getConnection();
+			pstmt = conn.prepareCall(sql);
+			pstmt.setInt(1, num);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+			board.setNum(rs.getInt("num"));
+			board.setWriter(rs.getString("writer"));
+			board.setSubject("[Re]");
+			board.setContent(rs.getString("content"));
+			board.setRegDate(rs.getTimestamp("regDate"));
+			board.setReadCount(rs.getInt("readCount"));
+			board.setRef(rs.getInt("ref"));
+			board.setRe_step(rs.getInt("re_step"));
+			board.setRe_level(rs.getInt("re_level"));
+			}
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			JDBCUtil.close(conn, pstmt, rs);
+		}
+		return board;	
+	}
 	
 	// 게시글 글수정폼 에서 글보기 메서드
 	public BoardDTO getBoard_updateForm(int num) {
@@ -269,7 +331,7 @@ public class BoardDAO {
 	
 	//전체 글수 획득
 	public int getBoardCount() {
-		String sql = "select count(*) from board";
+		String sql = "select count(*) from board where re_level = 0 ";
 		int cnt = 0;
 		try {
 			conn = JDBCUtil.getConnection();
@@ -287,6 +349,29 @@ public class BoardDAO {
 		}
 		return cnt;
 		
+	}
+	
+
+	// 댓글수 획득
+	public int getBoardReCount(int ref) {
+		String sql = "select count(*) from board where re_level > 0 and ref = ?";
+		int cnt = 0;
+		try {
+			conn = JDBCUtil.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, ref);
+			rs = pstmt.executeQuery();
+			
+			rs.next();
+			cnt = rs.getInt(1);
+			
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			JDBCUtil.close(conn, pstmt, rs);
+		}
+		return cnt;	
 	}
 	
 	
