@@ -311,11 +311,8 @@ public class BoardDAO {
 	
 	
 	//게시판 글삭제 메서드
-	
-
 	public void deleteBoard(int num) {
 		String sql = "delete from board where num = ?";
-		
 		try {
 			conn = JDBCUtil.getConnection();
 			//글 등록 처리
@@ -348,7 +345,6 @@ public class BoardDAO {
 			JDBCUtil.close(conn, pstmt, rs);
 		}
 		return cnt;
-		
 	}
 	
 
@@ -373,12 +369,4 @@ public class BoardDAO {
 		}
 		return cnt;	
 	}
-	
-	
-
-	
-	
-	
-	
-	
 }
